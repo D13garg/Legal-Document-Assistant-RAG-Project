@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "legal-document-assistant"
+version = "0.0.0"
+requires-python = ">=3.12"
+# Runtime dependencies are added by the step that first needs them (never ahead of need).
+dependencies = [
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.1",
+    "alembic>=1.13",
+    "pydantic>=2.6",
+    # >=1.35.2: first botocore release that models PutObject IfNoneMatch, which the create-only
+    # `put` in platform/storage/s3.py sends. Older releases fail parameter validation (Step 21).
+    "boto3>=1.35.2",
+    "redis>=5.0",
+    # Step 7 (document_processing): PDF text layer and hardened XML for DOCX (ADR-037).
+    "pypdf>=5.0",
+    "defusedxml>=0.7.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8", "ruff>=0.6", "mypy>=1.11", "import-linter>=2.0", "pip-audit>=2.7",
+    "moto[s3,server]>=5", "fakeredis[lua]>=2.23",
+    # Embedded Postgres for the integration tests. Used only when LDA_TEST_POSTGRES_URL is unset
+    # (CI sets it and uses a service container instead).
+    "pgserver>=0.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib -ra"
+testpaths = ["tests", "src"]
+pythonpath = [".", "src", "tools", "tests/architecture", "tests/platform"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tools", "."]
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "S", "SLF", "TID", "C4", "RUF"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+"tools/**" = ["E501"]  # long diagnostic strings; formatting is owned by ruff format
+"tests/**" = ["S101", "S603", "S607", "E501"]
+"src/lda/modules/*/tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src:tools:tests/architecture:tests/platform"
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = ["lda.modules.*.domain.*", "lda.modules.*.application.*", "lda.shared.*"]
+disallow_any_explicit = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = ["boto3.*", "botocore.*", "moto.*", "fakeredis.*", "defusedxml.*"]
+ignore_missing_imports = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["lda", "archguard", "repo_builder", "platform_support"]
+
+# Integration tests live in flat directories (tests/platform is on mypy_path), so match by module name.
+[[tool.mypy.overrides]]
+module = ["test_events_and_worker", "test_rls_and_schema", "test_configuration_and_logging", "conftest"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+warn_return_any = false
+disallow_any_generics = false

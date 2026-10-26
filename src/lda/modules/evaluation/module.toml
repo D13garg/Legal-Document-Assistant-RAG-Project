@@ -1,0 +1,10 @@
+[module]
+name = "evaluation"
+summary = "Evaluation: deterministic cases, metrics, run reports, typed configuration identity, stored run records and fail-closed release eligibility over an injected system under test (ADR-018, ADR-030, ADR-041)"
+owns_schema = "evaluation"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). The DAG permits ai_gateway and prompts; Step 12 imports
+# neither: it has no judge, no provider call and no template (ADR-018 section 6).
+depends_on = []

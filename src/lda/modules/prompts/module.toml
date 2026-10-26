@@ -1,0 +1,10 @@
+[module]
+name = "prompts"
+summary = "Prompts: code-defined, versioned, deterministic prompt rendering; authorization-agnostic (ADR-017)"
+owns_schema = ""
+layers = ["domain", "application"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). The DAG fixes this at none: prompts is pure and
+# authorization-agnostic and never imports access_control or ai_gateway (ADR-017).
+depends_on = []

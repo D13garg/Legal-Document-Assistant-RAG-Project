@@ -1,0 +1,10 @@
+[module]
+name = "citations"
+summary = "Citations: verified source references for one generation, marker resolution and the immutable GenerationRecord contract (ADR-016)"
+owns_schema = "citations"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). access_control.api: ResourceRef/ActionId shapes for the
+# cited document; chunking.api: DocumentId/VersionId and ReadChunks (provenance only; text is dropped).
+depends_on = ["access_control", "chunking"]

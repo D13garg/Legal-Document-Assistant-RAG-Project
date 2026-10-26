@@ -1,0 +1,14 @@
+[module]
+name = "answering"
+summary = "Answering: orchestrates one question across retrieval, grounded generation and the conversation log; owns no data and stores no answer text (ADR-040)"
+owns_schema = ""
+layers = ["domain", "application"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). access_control.api: ResolveAccessScope's request and
+# decision shapes; retrieval.api: SearchIndex and its query/result; grounded_generation.api: the
+# generation use case, its command and the neutral ClaimReference (so no `citations` edge is
+# needed: ADR-040 Q1); conversations.api: AppendUserMessage / AppendAssistantTurn and their shapes.
+# `ai_gateway` and `prompts` stay in the DAG allowlist but are NOT imported: egress and templates
+# are reached only through grounded_generation. No documents, identity or citations edge.
+depends_on = ["retrieval", "grounded_generation", "conversations", "access_control"]

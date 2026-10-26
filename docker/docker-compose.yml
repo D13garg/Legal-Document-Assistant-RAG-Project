@@ -1,0 +1,50 @@
+# Local development dependencies. Services are added by the step that first needs them
+# (object storage at step 5, observability at step 1 if needed).
+# Step 20C adds MinIO + a one-shot bucket initialiser for the headless slice (ADR-045). All
+# credentials below are development-only placeholders; none is a real secret. NOT VERIFIED: this
+# file was written without Docker available, so neither image tag nor health checks have run.
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: lda_admin
+      POSTGRES_PASSWORD: lda_dev_only
+      POSTGRES_DB: lda
+    ports: ["127.0.0.1:5433:5432"]  # loopback only: known dev credentials (Step 21)
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lda_admin -d lda"]
+      interval: 5s
+      retries: 10
+  minio:
+    # Tag pinned for reproducibility; NOT VERIFIED to exist (no registry access when written).
+    image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: lda_dev_minio
+      MINIO_ROOT_PASSWORD: lda_dev_only_minio_secret
+    ports: ["127.0.0.1:9000:9000", "127.0.0.1:9001:9001"]
+    volumes: [miniodata:/data]
+    healthcheck:
+      # Readiness of the MinIO server only. It does not prove the bucket exists or the app works.
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      retries: 10
+  minio-init:
+    # One-shot and idempotent: creates the bucket if absent, never deletes anything.
+    image: quay.io/minio/mc:RELEASE.2024-10-08T09-37-26Z
+    depends_on:
+      minio: {condition: service_healthy}
+    environment:
+      MINIO_ROOT_USER: lda_dev_minio
+      MINIO_ROOT_PASSWORD: lda_dev_only_minio_secret
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
+        mc mb --ignore-existing local/lda-dev-documents
+    restart: "no"
+volumes:
+  pgdata: {}
+  miniodata: {}

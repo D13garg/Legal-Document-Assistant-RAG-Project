@@ -1,0 +1,13 @@
+# Architecture exceptions (ADR-025). There is NO baseline of tolerated violations.
+# Every entry needs: rule, path, owner, adr, expires (YYYY-MM-DD), reason; `symbol` is optional.
+# Expired entries fail CI. Entries that no longer match a violation fail CI (stale).
+# AG003, AG090, AG060, AG061 can never be waived.
+#
+# [[exception]]
+# rule = "AG050"
+# path = "src/lda/modules/example/domain/thing.py"
+# symbol = "ThingManager"
+# owner = "team-x"
+# adr = "ADR-0NN"
+# expires = 2026-12-31
+# reason = "..."

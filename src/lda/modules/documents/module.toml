@@ -1,0 +1,12 @@
+[module]
+name = "documents"
+summary = "Documents: ownership, immutable versions, lifecycle skeleton, original objects, tombstone and purge boundary"
+owns_schema = "documents"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Resource-kind registration and revocation are
+# bootstrap wiring plus the shared `ResourceAccessRevoker` port (ADR-015, ADR-023). Step 6 imports
+# ingestion's public API (outcome events, job spec, system use cases): the DAG edge documents ->
+# ingestion (ADR-010). `access_control` stays undeclared: it is still not imported.
+depends_on = ["ingestion"]

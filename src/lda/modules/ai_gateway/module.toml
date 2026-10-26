@@ -1,0 +1,10 @@
+[module]
+name = "ai_gateway"
+summary = "AI gateway: the only egress to LLM providers; proof verified before every provider call (ADR-006, ADR-026)"
+owns_schema = ""
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). The DAG fixes this at none: the gateway reaches
+# authorization only through the shared ProofVerifier port, which bootstrap injects (ADR-026 §5-6).
+depends_on = []

@@ -1,0 +1,9 @@
+[module]
+name = "access_control"
+summary = "Authorization: WHAT may a principal do - explicit grants, default deny, AccessScope, policy epoch, authorization proof"
+owns_schema = "access_control"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Approved candidates: identity.
+depends_on = ["identity"]

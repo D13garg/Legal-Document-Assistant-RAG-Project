@@ -1,0 +1,9 @@
+[module]
+name = "identity"
+summary = "Principal registry: WHO is the actor (user or service) and is it active"
+owns_schema = "identity"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Approved candidates: none.
+depends_on = []

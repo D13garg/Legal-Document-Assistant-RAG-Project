@@ -1,0 +1,12 @@
+[module]
+name = "retrieval"
+summary = "Retrieval: tenant-bound vector index projection and authorized, ranked, provenance-carrying search"
+owns_schema = "retrieval"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Imports chunking.api (ReadChunks), documents.api
+# (ReadVersionState, DocumentPurged, READ_DOCUMENT, DOCUMENT_KIND), access_control.api (AccessScope,
+# MAX_SCOPE_RESOURCES) and ingestion.api (PipelineStage and its outcomes). `ai_gateway` stays in the
+# DAG allowlist but is NOT imported: embedding egress has no approved authorization rule (ADR-007).
+depends_on = ["chunking", "documents", "access_control", "ingestion"]

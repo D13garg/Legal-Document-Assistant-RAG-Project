@@ -1,0 +1,11 @@
+# Replace the placeholder teams with real GitHub teams before enabling "Require review from Code Owners".
+/docs/architecture/                        @legal-rag/architecture
+/tools/archguard/                          @legal-rag/architecture
+/architecture-exceptions.toml              @legal-rag/architecture
+/.importlinter                             @legal-rag/architecture
+/.github/                                  @legal-rag/architecture
+/src/lda/shared/                           @legal-rag/architecture
+/src/lda/platform/                         @legal-rag/architecture
+/src/lda/bootstrap/                        @legal-rag/architecture
+/src/lda/modules/access_control/           @legal-rag/security
+/src/lda/modules/prompts/domain/catalog/   @legal-rag/ai-quality

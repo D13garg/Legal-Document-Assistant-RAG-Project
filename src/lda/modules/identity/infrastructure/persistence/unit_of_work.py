@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+from types import TracebackType
+from typing import Self
+
+from lda.modules.identity.infrastructure.persistence.principal_repository import (
+    SqlPrincipalRepository,
+)
+from lda.platform.database.unit_of_work import SqlUnitOfWork, SqlUnitOfWorkFactory
+from lda.shared.kernel.context import ExecutionContext
+from lda.shared.kernel.ids import TenantId
+from lda.shared.ports.audit import AuditRecorder
+from lda.shared.ports.events import EventPublisher
+from lda.shared.ports.jobs import JobQueue
+
+
+class SqlIdentityUnitOfWork:
+    """The platform's tenant-bound transaction plus Identity's repository."""
+
+    def __init__(self, inner: SqlUnitOfWork) -> None:
+        self._inner = inner
+        self._principals = SqlPrincipalRepository(inner.transaction)
+
+    @property
+    def tenant_id(self) -> TenantId:
+        return self._inner.tenant_id
+
+    @property
+    def events(self) -> EventPublisher:
+        return self._inner.events
+
+    @property
+    def jobs(self) -> JobQueue:
+        return self._inner.jobs
+
+    @property
+    def audit(self) -> AuditRecorder:
+        return self._inner.audit
+
+    @property
+    def principals(self) -> SqlPrincipalRepository:
+        return self._principals
+
+    def __enter__(self) -> Self:
+        self._inner.__enter__()
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        self._inner.__exit__(exc_type, exc, tb)
+
+    def commit(self) -> None:
+        self._inner.commit()
+
+    def rollback(self) -> None:
+        self._inner.rollback()
+
+
+class SqlIdentityUnitOfWorkFactory:
+    def __init__(self, units_of_work: SqlUnitOfWorkFactory) -> None:
+        self._units_of_work = units_of_work
+
+    def begin(self, ctx: ExecutionContext) -> SqlIdentityUnitOfWork:
+        return SqlIdentityUnitOfWork(self._units_of_work.begin(ctx))

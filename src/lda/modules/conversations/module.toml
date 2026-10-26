@@ -1,0 +1,11 @@
+[module]
+name = "conversations"
+summary = "Conversations: owner-scoped, immutable, append-only message log that links assistant turns to generation records by reference (ADR-039)"
+owns_schema = "conversations"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). citations.api: the GenerationRecordRepository port and
+# GenerationRecord, to verify the tenant and principal of a linked record (ADR-039 C3). `documents`
+# stays an approved but undeclared ceiling: conversations holds no document or version reference.
+depends_on = ["citations"]

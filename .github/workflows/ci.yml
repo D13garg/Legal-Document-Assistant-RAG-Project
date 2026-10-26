@@ -1,0 +1,43 @@
+name: ci
+on: [pull_request, push]
+env:
+  PYTHONPATH: src:tools
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      LDA_TEST_POSTGRES_URL: postgresql+psycopg://lda_admin:lda_dev_only@localhost:5432/postgres
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: lda_admin
+          POSTGRES_PASSWORD: lda_dev_only
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lda_admin" --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e ".[dev]"
+      - run: ruff format --check . && ruff check .
+      - run: mypy src tools tests/architecture tests/shared
+      - run: mypy src tests/platform
+      - run: mypy apps
+      - run: python -m archguard check
+      - run: lint-imports
+      - run: python -m archguard gen-importlinter --check
+      - run: python -m archguard api-lock
+      - name: ADR gate
+        if: github.event_name == 'pull_request'
+        run: python -m archguard adr-gate --base origin/${{ github.base_ref }}
+      - run: pytest -q
+  supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e . pip-audit && pip-audit

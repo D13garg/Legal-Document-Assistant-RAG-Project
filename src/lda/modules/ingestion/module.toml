@@ -1,0 +1,9 @@
+[module]
+name = "ingestion"
+summary = "TODO"
+owns_schema = "ingestion"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Approved candidates: none.
+depends_on = []

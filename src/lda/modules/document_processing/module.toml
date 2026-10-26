@@ -1,0 +1,10 @@
+[module]
+name = "document_processing"
+summary = "Document processing: text extraction and normalization of pending versions into an immutable derived artifact"
+owns_schema = "document_processing"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Imports documents.api (ReadOriginal, DocumentPurged)
+# and ingestion.api (PipelineStage and its outcomes): both DAG edges are approved (ADR-010, ADR-037).
+depends_on = ["documents", "ingestion"]

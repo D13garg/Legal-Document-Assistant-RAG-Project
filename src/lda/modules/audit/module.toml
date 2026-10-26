@@ -1,0 +1,9 @@
+[module]
+name = "audit"
+summary = "Audit evidence: insert-only, tenant-scoped records of effective mutations, written in the action's own transaction"
+owns_schema = "audit"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Approved candidates: none.
+depends_on = []

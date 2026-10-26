@@ -1,0 +1,14 @@
+[module]
+name = "grounded_generation"
+summary = "Grounded generation: authorize, build verified text evidence, generate through the gateway, validate the cited answer and record its provenance (ADR-029)"
+owns_schema = ""
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). access_control.api: AuthorizeAction and the ResourceRef /
+# ActionId shapes (infrastructure adapter only); ai_gateway.api: GenerateText and its command shapes;
+# prompts.api: PromptRenderer and its request shapes; citations.api: TextEvidenceBuilder, the recorder
+# and the record contract; documents.api: DOCUMENT_KIND and READ_DOCUMENT, plus ReadVersionState and its query/view
+# shapes (the lifecycle gate: only `ready` versions release chunk text; infrastructure adapter only). No chunking edge: chunk text
+# arrives only through citations (ADR-016 amendment, ADR-029).
+depends_on = ["access_control", "ai_gateway", "prompts", "citations", "documents"]

@@ -1,0 +1,11 @@
+[module]
+name = "chunking"
+summary = "Chunking: deterministic, immutable chunk sets derived from extracted text of pending versions"
+owns_schema = "chunking"
+layers = ["domain", "application", "infrastructure"]
+
+[dependencies]
+# Declare only what is imported (AG011/AG012). Imports document_processing.api (ReadExtraction),
+# documents.api (DocumentPurged) and ingestion.api (PipelineStage and its outcomes): all three DAG
+# edges are approved (ADR-010, ADR-038).
+depends_on = ["document_processing", "documents", "ingestion"]
